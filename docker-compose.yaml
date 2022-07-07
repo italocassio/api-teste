@@ -3,7 +3,6 @@ version: '3'
 services:
 
   db-postgres:
-    #network_mode: host
     restart: on-failure
     build:
       context: .
@@ -24,7 +23,6 @@ services:
       retries: 10
 
   api-auction:
-    network_mode: host
     build:
       context: .
       dockerfile: devops/Dockerfile
@@ -32,12 +30,15 @@ services:
       - "8099:8099"
     environment: 
       - ENVIRONMENT=PRD
-      - DB_HOST=localhost
+      - DB_HOST=db-postgres
       - DB_PORT=5432
       - DB_NAME=jaspion_db
       - DB_USERNAME=postgres
       - DB_PASSWORD=test
     depends_on:
       - db-postgres
+    links:
+      - db-postgres
+      
 
 
