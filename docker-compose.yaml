@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+
+  db-postgres:
+    #network_mode: host
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: devops/postgres.dockerfile
+    command: postgres -c 'max_connections=500'
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=jaspion_db
+      - TZ=GMT
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  api-auction:
+    network_mode: host
+    build:
+      context: .
+      dockerfile: devops/Dockerfile
+    ports:
+      - "8099:8099"
+    environment: 
+      - ENVIRONMENT=PRD
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_NAME=jaspion_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=test
+    depends_on:
+      - db-postgres
+
+
